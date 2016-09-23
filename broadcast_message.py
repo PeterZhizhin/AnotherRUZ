@@ -17,12 +17,21 @@ no_mail = "Вы не указали почту, попробуйте сдела�
 broadcast_with_mail = broadcast + with_mail
 broadcast_no_mail = broadcast + no_mail
 
+already_sent_to = {
+    93894659,
+    553838,
+    1374125,
+    1480753,
+}
+
 
 def main():
     bot = Bot(access_token.token)
     users_collection = Databases().get_users_db().users_collection
     for user in users_collection.find():
         user_id = user['id']
+        if user_id in already_sent_to:
+            continue
         try:
             if 'email' not in user or user['email'] is None:
                 bot.send_message(user_id, broadcast_no_mail)
