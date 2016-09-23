@@ -28,6 +28,7 @@ already_sent_to = {
 def main():
     bot = Bot(access_token.token)
     users_collection = Databases().get_users_db().users_collection
+    wrong_count = 0
     for user in users_collection.find():
         user_id = user['id']
         if user_id in already_sent_to:
@@ -42,7 +43,9 @@ def main():
                 print(user_id)
         except BadRequest:
         except Unauthorized:
+            wrong_count += 1
             print(user_id, 'not correct')
+    print(wrong_count)
 
 
 if __name__ == "__main__":
