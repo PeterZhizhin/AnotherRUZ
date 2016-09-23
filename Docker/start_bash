@@ -1,0 +1,1 @@
+docker run --rm -it --link mongo-container:localhost -v $(pwd)/../:/source AnotherRUZ /bin/bash
