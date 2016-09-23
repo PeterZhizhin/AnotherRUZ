@@ -42,6 +42,8 @@ def main():
                 bot.send_message(user_id, broadcast_with_mail.format(email))
                 print(user_id)
         except BadRequest:
+            wrong_count += 1
+            print(user_id, 'bad reuqest')
         except Unauthorized:
             wrong_count += 1
             print(user_id, 'not correct')
