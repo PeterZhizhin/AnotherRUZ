@@ -24,9 +24,11 @@ def main():
         user_id = user['id']
         if 'email' not in user or user['email'] is None:
             bot.send_message(user_id, broadcast_no_mail)
+            print(user_id)
         else:
             email = user['email']
             bot.send_message(user_id, broadcast_with_mail.format(email))
+            print(user_id)
 
 
 if __name__ == "__main__":
