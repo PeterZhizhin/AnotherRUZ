@@ -1,6 +1,6 @@
 FROM python:latest
 MAINTAINER Peter Zhizhin <piter.zh@gmail.com>
-ADD /../requirements.txt /requirements.txt
+ADD requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8

@@ -1,0 +1,3 @@
+cp ../requirements.txt requirements.txt
+docker build -t another_ruz .
+rm requirements.txt

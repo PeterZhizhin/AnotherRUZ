@@ -1,1 +1,1 @@
-docker run -d --restart=always --name AnotherRUZ --link mongo-container:localhost -v $(pwd)/../:/source AnotherRUZ
+docker run -d --restart=always --name another_ruz --link mongo-container:localhost -v $(pwd)/../:/source another_ruz
