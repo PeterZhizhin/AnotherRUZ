@@ -1,5 +1,5 @@
 from telegram import Bot
-from telegram.error import BadRequest
+from telegram.error import BadRequest, Unauthorized
 
 import access_token
 from database import Databases
@@ -41,6 +41,7 @@ def main():
                 bot.send_message(user_id, broadcast_with_mail.format(email))
                 print(user_id)
         except BadRequest:
+        except Unauthorized:
             print(user_id, 'not correct')
 
 
