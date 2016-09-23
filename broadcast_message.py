@@ -1,4 +1,5 @@
 from telegram import Bot
+from telegram.error import BadRequest
 
 import access_token
 from database import Databases
@@ -22,13 +23,16 @@ def main():
     users_collection = Databases().get_users_db().users_collection
     for user in users_collection.find():
         user_id = user['id']
-        if 'email' not in user or user['email'] is None:
-            bot.send_message(user_id, broadcast_no_mail)
-            print(user_id)
-        else:
-            email = user['email']
-            bot.send_message(user_id, broadcast_with_mail.format(email))
-            print(user_id)
+        try:
+            if 'email' not in user or user['email'] is None:
+                bot.send_message(user_id, broadcast_no_mail)
+                print(user_id)
+            else:
+                email = user['email']
+                bot.send_message(user_id, broadcast_with_mail.format(email))
+                print(user_id)
+        except BadRequest:
+            print(user_id, 'not correct')
 
 
 if __name__ == "__main__":
