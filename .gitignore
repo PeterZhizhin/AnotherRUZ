@@ -1,1 +1,5 @@
 access_token.py
+env
+.idea
+.ipynb_checkpoints
+*.log
