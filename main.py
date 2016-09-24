@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from telegram import TelegramError
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, CallbackQueryHandler
 from users import UserManager
@@ -36,7 +37,10 @@ class Main:
         self.user_manager.get_user(update.callback_query.message.chat_id).process_callback(bot, update)
 
     def telegram_error(self, bot, update, error):
-        raise error
+        try:
+            raise error
+        except TelegramError as details:
+            logger.warning('There was a Telegram Error {}'.format(details))
 
 
 if __name__ == "__main__":

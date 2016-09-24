@@ -43,7 +43,7 @@ def main():
                 print(user_id)
         except BadRequest:
             wrong_count += 1
-            print(user_id, 'bad reuqest')
+            print(user_id, 'bad request')
         except Unauthorized:
             wrong_count += 1
             print(user_id, 'not correct')
