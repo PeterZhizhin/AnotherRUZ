@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from telegram.error import BadRequest
-
 import strings
 from telegram import InlineKeyboardMarkup
 from users.states_machine.basic_state import BasicState
@@ -18,30 +16,11 @@ class SettingsState(BasicState):
         super().__init__(user)
         self.menu_message = None
 
-    def send_or_edit_message(self, *args, invoke=True, **kwargs):
-        try:
-            if self.user.main_menu_message is None:
-                invoke = True
-
-            if self.user.main_menu_message is not None and invoke:
-                self.user.remove_keyboard(self.user.main_menu_message)
-                self.user.main_menu_message = None
-
-            if invoke:
-                result = self.user.send_message(*args, **kwargs)
-                self.user.main_menu_message = result.message_id
-                return result
-            else:
-                return self.user.edit_message(self.user.main_menu_message, *args, **kwargs)
-        except BadRequest:
-            self.user.main_menu_message = None
-            return self.send_or_edit_message(*args, invoke=True, **kwargs)
-
     def enter_message(self, invoke=False):
         logging.debug('Sending settings message for {}'.format(self.user.user_id))
-        msg = self.send_or_edit_message(text=strings.settings_main.format(self.user.email),
-                                        invoke=invoke,
-                                        reply_markup=InlineKeyboardMarkup(strings.settings_main_markup))
+        msg = self.user.send_or_edit_message(text=strings.settings_main.format(self.user.email),
+                                             invoke=invoke,
+                                             reply_markup=InlineKeyboardMarkup(strings.settings_main_markup))
         if msg is not None:
             self.menu_message = msg.message_id
 

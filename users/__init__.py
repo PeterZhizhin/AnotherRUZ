@@ -39,6 +39,21 @@ class User:
                                         text=text,
                                         **kwargs)
 
+    def send_or_edit_message(self, *args, invoke=True, **kwargs):
+        if self.main_menu_message is None:
+            invoke = True
+
+        if self.main_menu_message is not None and invoke:
+            self.remove_keyboard(self.main_menu_message)
+            self.main_menu_message = None
+
+        if invoke:
+            result = self.send_message(*args, **kwargs)
+            self.main_menu_message = result.message_id
+            return result
+        else:
+            return self.edit_message(self.main_menu_message, *args, **kwargs)
+
     @staticmethod
     def check_email_correct(email):
         return isinstance(email, str) and hse_email_re.match(email)

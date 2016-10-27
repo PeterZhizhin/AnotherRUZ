@@ -115,51 +115,56 @@ class MainState(BasicState):
         return strings.get_inline_keyboard([[(strings.refresh_string, json.dumps({'type': 'refresh'},
                                                                                  separators=(',', ':')))]])
 
-    def send_or_edit_message(self, *args, invoke=True, **kwargs):
-        if self.user.main_menu_message is None:
-            invoke = True
-
-        if self.user.main_menu_message is not None and invoke:
-            self.user.remove_keyboard(self.user.main_menu_message)
-            self.user.main_menu_message = None
-
-        if invoke:
-            result = self.user.send_message(*args, **kwargs)
-            self.user.main_menu_message = result.message_id
-            return result
-        else:
-            return self.user.edit_message(self.user.main_menu_message, *args, **kwargs)
-
     def send_help_message(self, invoke=True):
         logging.debug('Sending help for {}'.format(self.user.user_id))
-        self.send_or_edit_message(strings.help_message,
-                                  invoke=invoke,
-                                  reply_markup=InlineKeyboardMarkup(strings.help_understand_markup))
+        self.user.send_or_edit_message(strings.help_message,
+                                       invoke=invoke,
+                                       reply_markup=InlineKeyboardMarkup(strings.help_understand_markup))
 
     def send_keyboard_message(self):
         logging.debug('Sending keyboard for {}'.format(self.user.user_id))
         self.user.send_message(strings.keyboard_message,
                                reply_markup=ReplyKeyboardMarkup(strings.main_keyboard_markup))
 
+    @staticmethod
+    def get_building_from_timetable(timetable):
+        building = timetable[0].building
+        building.fill_other_info()
+        return building.building_oid
+
+    @staticmethod
+    def find_free_auditoriums_keyboard(building_id: int, date: datetime = None):
+        if date is None:
+            date = MainState.get_now()
+        return strings.get_inline_keyboard([[(strings.free_auditoriums_keyboard_message,
+                                              json.dumps({
+                                                  'type': 'free',
+                                                  'date': strings.format_date(date),
+                                                  'building': building_id,
+                                              }))]])
+
     def send_menu_message(self, invoke=False):
         timetable = self.get_today_timetable()
         if len(timetable) == 0:
             nearest_lesson = self.find_nearest_lesson()
             if nearest_lesson is None:
-                self.send_or_edit_message(strings.no_timetable_at_all,
-                                          invoke=invoke,
-                                          reply_markup=InlineKeyboardMarkup(self.get_refresh_bar()))
+                self.user.send_or_edit_message(strings.no_timetable_at_all,
+                                               invoke=invoke,
+                                               reply_markup=InlineKeyboardMarkup(self.get_refresh_bar()))
             else:
-                self.send_or_edit_message(strings.no_timetable_today_fun(nearest_lesson),
-                                          invoke=invoke,
-                                          reply_markup=InlineKeyboardMarkup(
-                                              self.get_navigation_bar() +
-                                              strings.no_timetable_keyboard_fun(nearest_lesson)))
+                self.user.send_or_edit_message(strings.no_timetable_today_fun(nearest_lesson),
+                                               invoke=invoke,
+                                               reply_markup=InlineKeyboardMarkup(
+                                                   self.get_navigation_bar() +
+                                                   strings.no_timetable_keyboard_fun(nearest_lesson)))
         else:
-            self.send_or_edit_message(self.format_timetable(timetable),
-                                      invoke=invoke,
-                                      parse_mode=ParseMode.MARKDOWN,
-                                      reply_markup=InlineKeyboardMarkup(self.get_navigation_bar()))
+            building_id = self.get_building_from_timetable(timetable)
+            self.user.send_or_edit_message(self.format_timetable(timetable),
+                                           invoke=invoke,
+                                           parse_mode=ParseMode.MARKDOWN,
+                                           reply_markup=InlineKeyboardMarkup(self.get_navigation_bar() +
+                                                                             self.find_free_auditoriums_keyboard(
+                                                                                 building_id)))
 
     def go_date(self, date, invoke=False):
         if date.date() == self.get_now().date():
@@ -168,31 +173,36 @@ class MainState(BasicState):
         try:
             timetable = self.get_timetable_date(date)
         except python_ruz.utilities.WrongTimePeriod:
-            self.send_or_edit_message(strings.too_far_error.format(strings.format_date(date)),
-                                      invoke=invoke,
-                                      reply_markup=InlineKeyboardMarkup(strings.get_inline_keyboard(
-                                          [[(strings.today_string,
-                                             json.dumps({'type': 'GoDate',
-                                                         'to': strings.today_string_label},
-                                                        separators=(',', ':')))]]
-                                      )))
+            self.user.send_or_edit_message(strings.too_far_error.format(strings.format_date(date)),
+                                           invoke=invoke,
+                                           reply_markup=InlineKeyboardMarkup(strings.get_inline_keyboard(
+                                               [[(strings.today_string,
+                                                  json.dumps({'type': 'GoDate',
+                                                              'to': strings.today_string_label},
+                                                             separators=(',', ':')))]]
+                                           )))
             return
         if len(timetable) == 0:
-            self.send_or_edit_message(strings.no_lessons_at_date.format(strings.format_date(date),
-                                                                        strings.get_weekday_name(date)),
-                                      invoke=invoke,
-                                      parse_mode=ParseMode.MARKDOWN,
-                                      reply_markup=InlineKeyboardMarkup(self.get_navigation_bar(date)))
+            self.user.send_or_edit_message(strings.no_lessons_at_date.format(strings.format_date(date),
+                                                                             strings.get_weekday_name(date)),
+                                           invoke=invoke,
+                                           parse_mode=ParseMode.MARKDOWN,
+                                           reply_markup=InlineKeyboardMarkup(self.get_navigation_bar(date)))
         else:
-            self.send_or_edit_message(self.format_timetable(timetable),
-                                      invoke=invoke,
-                                      parse_mode=ParseMode.MARKDOWN,
-                                      reply_markup=InlineKeyboardMarkup(self.get_navigation_bar(date)))
+            building_id = self.get_building_from_timetable(timetable)
+            self.user.send_or_edit_message(self.format_timetable(timetable),
+                                           invoke=invoke,
+                                           parse_mode=ParseMode.MARKDOWN,
+                                           reply_markup=InlineKeyboardMarkup(self.get_navigation_bar(date) +
+                                                                             self.find_free_auditoriums_keyboard(
+                                                                                 building_id, date)))
 
-    def enter(self, send_keyboard=True, invoke=True):
+    def enter(self, send_keyboard=True, invoke=True, go_date: datetime = None):
+        if go_date is None:
+            go_date = self.get_now()
         if send_keyboard:
             self.send_keyboard_message()
-        self.send_menu_message(invoke=invoke)
+        self.go_date(go_date, invoke=invoke)
 
     def exit(self):
         pass
@@ -230,6 +240,12 @@ class MainState(BasicState):
                 logging.debug('Sending help for {}'.format(self.user.user_id))
                 self.user.bot.answer_callback_query(callback_query_id=query_id)
                 self.send_menu_message(invoke=False)
+            elif data_type == 'free':
+                building_id = query_data['building']
+                date = query_data['date']
+                date = datetime.strptime(date, strings.date_format)
+                return BasicState.create_transition(tags.FREE_AUDITORIUMS, building_id=building_id,
+                                                    date=date)
             else:
                 return
         except KeyError:

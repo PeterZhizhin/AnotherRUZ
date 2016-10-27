@@ -130,7 +130,24 @@ help_understand_markup = get_inline_keyboard([[('Понятно', i_understand_c
 settings_main = "Ваша текущая почта: {}"
 change_email_tag = 'change_email'
 go_back_tag = 'go_main'
+back = 'Назад'
 settings_main_markup = get_inline_keyboard([[('Поменять почту', change_email_tag),
-                                             ('Назад', go_back_tag)]])
+                                             (back, go_back_tag)]])
 
 get_email_back_keyboard = get_inline_keyboard([['В главное меню', go_back_tag]])
+
+free_auditoriums_keyboard_message = 'Свободные аудитории'
+
+free_auditoriums_main_message = "*{} ({})*\n_{}_\nВыберите номер пары, на которую нужно найти аудиторию."
+
+free_auditoriums_pair_format = 'Пара {} ({}-{})'
+
+free_auditoriums_list_format = "*{} ()*\n" \
+                               "_{}_\n" \
+                               "Свободные аудитории на {} пару\n" \
+                               "*{}*"
+
+getting_free_auditoriums = "Получение свободных аудиторий. Это может занять некоторое время."
+go_to_pairs_choose_keyboard_message = 'Назад к выбору пары'
+
+error_during_getting_schedule = 'Произошла ошибка. Возвращаем в главное меню.'

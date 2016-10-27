@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 from typing import List, Iterable, Dict
 
 import asyncio
@@ -8,6 +9,8 @@ from requests.exceptions import Timeout, ConnectTimeout, ReadTimeout
 import requests
 
 from datetime import datetime, date, timedelta
+
+from python_ruz import ruz_config
 from . import utilities
 from . import Auditorium, Lecturer, Building
 
@@ -134,9 +137,9 @@ async def async_auditoriums_lessons(from_date: date, to_date: date,
 
 
 def auditoriums_lessons(from_date: date, to_date: date, auditorium_ids: Iterable[int]) -> Dict[int, List[Lesson]]:
-    future = asyncio.ensure_future(async_auditoriums_lessons(from_date, to_date, auditorium_ids))
-    asyncio.get_event_loop().run_until_complete(future)
-    return future.result()
+    return asyncio.get_event_loop().run_until_complete(async_auditoriums_lessons(from_date,
+                                                                                 to_date,
+                                                                                 auditorium_ids))
 
 
 def auditoriums_lessons_in_building(from_date: date, to_date: date, building_id=None) -> Dict[str, List[Lesson]]:
@@ -148,34 +151,24 @@ def auditoriums_lessons_in_building(from_date: date, to_date: date, building_id=
     return result
 
 
-def get_free_auditoriums(request_date: date,
-                         building_id: int = None,
-                         remove_intervals_smaller_than: timedelta = None):
-    if remove_intervals_smaller_than is None:
-        remove_intervals_smaller_than = timedelta()
-    lessons_start_datetime = datetime.combine(request_date, utilities.lessons_start)
-    lessons_end_datetime = datetime.combine(request_date, utilities.lessons_end)
-    last_empty_lesson = (lessons_end_datetime, lessons_end_datetime)
-    full_day_free = (lessons_start_datetime, lessons_end_datetime)
+def _time_intervals_intersects(interval_a, interval_b):
+    return interval_a[1] >= interval_b[0] and interval_a[0] <= interval_b[1]
 
+
+def get_free_auditoriums(request_date: date,
+                         building_id: int = None):
     auditoriums_timetable = auditoriums_lessons_in_building(request_date, request_date, building_id)
-    auditorium_availability = dict()
-    for auditorium_no, auditorium_info in auditoriums_timetable.items():
-        assert all(i.begin_lesson.date() == request_date for i in auditorium_info)
-        intervals = [(i.begin_lesson, i.end_lesson) for i in auditorium_info]
-        intervals.sort()
-        intervals = utilities.unique_sorted_list(intervals)
-        auditorium_free = []
-        if intervals:
-            intervals.append(last_empty_lesson)
-            current_time = lessons_start_datetime
-            for interval in intervals:
-                new_end = interval[0]
-                if new_end != current_time:
-                    auditorium_free.append((current_time, new_end))
-                current_time = interval[1]
-        else:
-            auditorium_free.append(full_day_free)
-        auditorium_availability[auditorium_no] = [i for i in auditorium_free if
-                                                  i[1] - i[0] > remove_intervals_smaller_than]
-    return auditorium_availability
+    for lesson_list in auditoriums_timetable.values():
+        for i in range(len(lesson_list)):
+            lesson_list[i] = (lesson_list[i].begin_lesson.time(), lesson_list[i].end_lesson.time())
+
+    result_dict = defaultdict(list)
+    for auditorium, lessons in auditoriums_timetable.items():
+        for pair_time in ruz_config.pairs:
+            intersects = False
+            for lesson in lessons:
+                if _time_intervals_intersects(pair_time, lesson):
+                    intersects = True
+                    break
+            result_dict[auditorium].append(not intersects)
+    return result_dict
