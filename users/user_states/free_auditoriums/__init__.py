@@ -108,9 +108,10 @@ class FreeAuditoriums(BasicState):
                 pairs_list.sort()
                 pairs_list_str = ', '.join(map(str, pairs_list))
                 self.user.send_or_edit_message(
-                    strings.free_auditoriums_list_format.format(pair_no,
+                    strings.free_auditoriums_list_format.format(strings.format_date(self.date),
+                                                                strings.get_weekday_name(self.date),
                                                                 self.building.building_address,
-                                                                strings.format_date(self.date),
+                                                                pair_no,
                                                                 pairs_list_str),
                     invoke=False,
                     reply_markup=self.get_go_to_pairs_choose(),

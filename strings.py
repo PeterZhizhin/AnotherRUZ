@@ -142,7 +142,7 @@ free_auditoriums_main_message = "*{} ({})*\n_{}_\nВыберите номер п
 
 free_auditoriums_pair_format = 'Пара {} ({}-{})'
 
-free_auditoriums_list_format = "*{} ()*\n" \
+free_auditoriums_list_format = "*{} ({})*\n" \
                                "_{}_\n" \
                                "Свободные аудитории на {} пару\n" \
                                "*{}*"
