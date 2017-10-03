@@ -1,6 +1,7 @@
 from datetime import time, date
 
 from python_ruz import auditorium_lessons_in_building, get_free_auditoriums
+import python_ruz
 
 
 def timeit(count=1):
@@ -24,6 +25,10 @@ def timeit(count=1):
 if __name__ == "__main__":
     def check_segment_inside(segment_big, segment_small):
         return segment_small[0] >= segment_big[0] and segment_small[1] <= segment_big[1]
+
+    from datetime import datetime
+    n = datetime.now().date()
+    res = python_ruz.person_lessons(n, n, 'pnzhizhin@edu.hse.ru')
 
 
     from collections import defaultdict
