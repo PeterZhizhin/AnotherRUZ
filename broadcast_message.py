@@ -4,14 +4,13 @@ from telegram.error import BadRequest, Unauthorized
 import access_token
 from database import Databases
 
-broadcast = """Мне сообщают о проблемах с ботом. К сожалению, по какой-то причине, на любой запрос РУЗ отвечает 404 (страница не найдена). А при попытке открыть ruz.hse.ru - ничего не получется, страница висит."""
+broadcast = "Бот вернулся в работу. В будущем планируется наладить общение с ДИТ, чтобы я хотя бы знал о переменах в их работе. Извините за ваши потраченные нервы."
 no_mail = "Вы не указали почту, попробуйте сделать это сейчас, ведь интерфейс теперь и правда понятный!\nСпасибо."
 
 broadcast_with_mail = broadcast
 broadcast_no_mail = broadcast + no_mail
 
-already_sent_to = {
-}
+already_sent_to = set()
 
 
 def main():
@@ -23,8 +22,7 @@ def main():
         if user_id in already_sent_to:
             continue
         try:
-            email = user['email']
-            bot.send_message(user_id, broadcast_with_mail.format(email))
+            bot.send_message(user_id, broadcast)
             print(user_id)
         except BadRequest:
             wrong_count += 1
@@ -32,6 +30,7 @@ def main():
         except Unauthorized:
             wrong_count += 1
             print(user_id, 'not correct')
+        already_sent_to.add(user_id)
     print(wrong_count)
 
 
