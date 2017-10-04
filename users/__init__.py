@@ -5,7 +5,7 @@ from .states_machine import StateMachine
 from .user_states import tags
 import re
 
-hse_email_re = re.compile('[A-Za-z_0-9]+@(edu\.)?hse\.ru')
+hse_email_re = re.compile('[A-Za-z_-0-9]+@(edu\.)?hse\.ru')
 
 
 class User:
