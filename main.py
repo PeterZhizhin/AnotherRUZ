@@ -12,7 +12,6 @@ import logging_settings
 
 logger = logging_settings.init_logging("ruz_main.log")
 
-
 class AsyncioUpdate:
     pass
 
@@ -67,6 +66,7 @@ class Main:
             raise error
         except TelegramError as details:
             logger.warning('There was a Telegram Error {}'.format(details))
+            raise
 
 
 if __name__ == "__main__":
