@@ -161,10 +161,10 @@ class FreeAuditoriums(BasicState):
             if query_type == 'pair':
                 pair_no = res['no']
                 if 1 <= pair_no <= len(ruz_config.pairs):
-                    self.user.bot.answer_callback_query(callback_query_id=update.callback_query.id)
+                    # self.user.bot.answer_callback_query(callback_query_id=update.callback_query.id)
                     return self.show_auditoriums(pair_no)
             elif query_type == 'back':
-                self.user.bot.answer_callback_query(callback_query_id=update.callback_query.id)
+                # self.user.bot.answer_callback_query(callback_query_id=update.callback_query.id)
                 return BasicState.create_transition(tags.MAIN,
                                                     send_keyboard=False, invoke=False,
                                                     go_date=self.date)

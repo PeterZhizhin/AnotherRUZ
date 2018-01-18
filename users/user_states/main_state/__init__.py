@@ -225,12 +225,12 @@ class MainState(BasicState):
             data_type = query_data['type']
             if data_type == 'refresh':
                 logging.debug('Refreshing timetable for {}'.format(self.user.user_id))
-                self.user.bot.answer_callback_query(callback_query_id=query_id)
+                # self.user.bot.answer_callback_query(callback_query_id=query_id)
                 self.send_menu_message(invoke=False)
             elif data_type == 'GoDate':
                 date = query_data['to']
                 logging.debug('User {} goes to date {}'.format(self.user.user_id, date))
-                self.user.bot.answer_callback_query(callback_query_id=query_id)
+                # self.user.bot.answer_callback_query(callback_query_id=query_id)
                 if date == 'today':
                     date = self.get_now()
                 else:
@@ -238,7 +238,7 @@ class MainState(BasicState):
                 self.go_date(date)
             elif data_type == strings.confirm_help_type:
                 logging.debug('Sending help for {}'.format(self.user.user_id))
-                self.user.bot.answer_callback_query(callback_query_id=query_id)
+                # self.user.bot.answer_callback_query(callback_query_id=query_id)
                 self.send_menu_message(invoke=False)
             elif data_type == 'free':
                 building_id = query_data['building']
