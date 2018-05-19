@@ -4,7 +4,7 @@ from datetime import datetime, time
 
 import aiohttp
 
-base_url = "http://ruz2017.hse.ru/ruzservice.svc/{}"
+base_url = "http://ruz2018.hse.ru/ruzservice.svc/{}"
 date_format = '%Y.%m.%d'
 time_format = '%H:%M'
 lessons_start = time(hour=9)
